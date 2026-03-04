@@ -1,0 +1,182 @@
+.clients-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.clients-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.clients-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--primary);
+}
+
+.clients-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.clients-search {
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid #d6cfc7;
+  background: #f5f0eb;
+  color: #1e1b4b;
+  font-size: 14px;
+  min-width: 260px;
+}
+
+.clients-search::placeholder {
+  color: #9c8c7e;
+}
+
+.clients-actions button {
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.2);
+  font-size: 14px;
+  padding: 9px 16px;
+}
+
+.clients-actions button:hover {
+  background: linear-gradient(90deg, #6d28d9, var(--primary));
+  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.3);
+}
+
+.clients-table-wrapper {
+  background: #faf8f5;
+  border-radius: var(--radius-xl);
+  border: 1px solid #e8e0d8;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.clients-empty {
+  padding: 18px;
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+.clients-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: #faf8f5;
+}
+
+.clients-table-wrapper thead {
+  background: #f0ebe4;
+}
+
+.clients-table-wrapper th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background: #ede5da;
+  color: #6b5e52;
+}
+
+.clients-table-wrapper td {
+  padding: 10px 12px;
+  border-top: 1px solid #ede5da;
+  color: #1e1b4b;
+}
+
+.clients-table-wrapper tr:hover {
+  background: #f5f0eb;
+}
+
+.clients-table-wrapper button.edit,
+.clients-table-wrapper button.delete {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 4px;
+}
+
+.clients-table-wrapper button.edit:hover {
+  color: var(--primary);
+}
+
+.clients-table-wrapper button.delete:hover {
+  color: var(--danger);
+}
+
+/* Modal (reutiliza estilos del resto, pero por si no están) */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: #fafafa;
+  border-radius: 18px;
+  padding: 22px 20px;
+  width: 380px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal h3 {
+  text-align: center;
+  color: var(--primary);
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-form input,
+.modal-form textarea {
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1px solid #d6cfc7;
+  background: #f5f0eb;
+  color: #1e1b4b;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 14px;
+}
+
+.modal-actions .cancel {
+  background: #e5e7eb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
