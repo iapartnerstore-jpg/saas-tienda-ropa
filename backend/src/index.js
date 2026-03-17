@@ -9,7 +9,6 @@ const __dirname = path.dirname(__filename);
 
 import healthRoutes from './modules/health/routes.js';
 import authRoutes from './modules/auth/routes.js';
-import storeRoutes from './modules/store/store.routes.js';
 import reportsRoutes from './modules/reports/reports.routes.js';
 
 
@@ -23,7 +22,15 @@ import promotionsRoutes from './routes/promotions.routes.js';
 
 const app = express();
 
-app.use(cors({ origin: '*' }));
+// CORS: en produccion limitar al dominio real
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(s => s.trim())
+  : ['*'];
+
+app.use(cors({
+  origin: allowedOrigins.includes('*') ? '*' : allowedOrigins,
+  credentials: true,
+}));
 app.use(express.json());
 
 // módulos
@@ -36,9 +43,6 @@ app.use('/api/reports', reportsRoutes);
 // rutas core — /store/settings ANTES de /store para evitar que el router genérico lo intercepte
 app.use('/store/settings', storeSettingsRoutes);
 app.use('/api/store/settings', storeSettingsRoutes);
-app.use('/store', storeRoutes);
-app.use('/api/store', storeRoutes);
-
 app.use('/products', productsRoutes);
 app.use('/sales', salesRoutes);
 app.use('/customers', customersRoutes);

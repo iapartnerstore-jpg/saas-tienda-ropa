@@ -4,8 +4,8 @@ import "./Login.css";
 
 export default function Login() {
   const [tenant, setTenant] = useState("modashop");
-  const [email, setEmail] = useState("admin");
-  const [password, setPassword] = useState("Yaninaadmin2026");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

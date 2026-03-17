@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useStoreSettings } from "../../context/StoreSettingsContext.jsx";
 import { getAuthUser, toggleRole, useRole } from "../../utils/auth.js";
@@ -10,7 +10,13 @@ export default function Layout({ children }) {
   const location = useLocation();
   const user = getAuthUser();
   const { admin, realAdmin } = useRole();
-  const isOverriding = realAdmin && !admin; // Admin real viendo como empleado
+  const isOverriding = realAdmin && !admin;
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Cerrar menu al cambiar de ruta
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   const handleToggleRole = useCallback(() => {
     toggleRole();
@@ -22,8 +28,13 @@ export default function Layout({ children }) {
 
   return (
     <div className="app-shell">
+      {/* OVERLAY mobile */}
+      {menuOpen && (
+        <div className="sidebar-overlay" onClick={() => setMenuOpen(false)} />
+      )}
+
       {/* SIDEBAR */}
-      <aside className="sidebar">
+      <aside className={`sidebar${menuOpen ? " open" : ""}`}>
         <div className="sidebar-logo">
           {logoUrl ? (
             <img
@@ -43,107 +54,61 @@ export default function Layout({ children }) {
           ) : (
             <span className="icon">S</span>
           )}
-          <span style={{ color: "#a855f7" }}>{storeName}</span>
+          <span className="sidebar-store-name" style={{ color: "#a855f7" }}>{storeName}</span>
         </div>
 
         <nav className="sidebar-nav">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) =>
-              "sidebar-link" + (isActive ? " active" : "")
-            }
-          >
-            <span className="icon">🏠</span>
-            <span>Dashboard</span>
+          <NavLink to="/dashboard" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+            <span className="icon">🏠</span><span>Dashboard</span>
           </NavLink>
-
-          <NavLink
-            to="/pos"
-            className={({ isActive }) =>
-              "sidebar-link" + (isActive ? " active" : "")
-            }
-          >
-            <span className="icon">🧾</span>
-            <span>Punto de venta</span>
+          <NavLink to="/pos" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+            <span className="icon">🧾</span><span>Punto de venta</span>
           </NavLink>
-
-          <NavLink
-            to="/productos"
-            className={({ isActive }) =>
-              "sidebar-link" + (isActive ? " active" : "")
-            }
-          >
-            <span className="icon">📦</span>
-            <span>Productos</span>
+          <NavLink to="/productos" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+            <span className="icon">📦</span><span>Productos</span>
           </NavLink>
-
-          <NavLink
-            to="/clientes"
-            className={({ isActive }) =>
-              "sidebar-link" + (isActive ? " active" : "")
-            }
-          >
-            <span className="icon">👥</span>
-            <span>Clientes</span>
+          <NavLink to="/clientes" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+            <span className="icon">👥</span><span>Clientes</span>
           </NavLink>
-
-          <NavLink
-            to="/proveedores"
-            className={({ isActive }) =>
-              "sidebar-link" + (isActive ? " active" : "")
-            }
-          >
-            <span className="icon">🏭</span>
-            <span>Proveedores</span>
+          <NavLink to="/proveedores" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+            <span className="icon">🏭</span><span>Proveedores</span>
           </NavLink>
-
-          <NavLink
-            to="/promociones"
-            className={({ isActive }) =>
-              "sidebar-link" + (isActive ? " active" : "")
-            }
-          >
-            <span className="icon">🔥</span>
-            <span>Promociones</span>
+          <NavLink to="/promociones" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+            <span className="icon">🔥</span><span>Promociones</span>
           </NavLink>
-
           {admin && (
-            <NavLink
-              to="/reportes"
-              className={({ isActive }) =>
-                "sidebar-link" + (isActive ? " active" : "")
-              }
-            >
-              <span className="icon">📊</span>
-              <span>Reportes</span>
+            <NavLink to="/reportes" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+              <span className="icon">📊</span><span>Reportes</span>
             </NavLink>
           )}
-
-
         </nav>
       </aside>
 
       {/* TOPBAR */}
       <header className="topbar">
-        <div className="topbar-title">
-          <span className="label">
-            {loading ? "Cargando tienda..." : "TIENDA ACTIVA"}
-          </span>
-          <span className="main">
-            {storeName}
-          </span>
+        <div className="topbar-left">
+          <button
+            className="hamburger-btn"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Menu"
+          >
+            <span></span><span></span><span></span>
+          </button>
+          <div className="topbar-title">
+            <span className="label">
+              {loading ? "Cargando tienda..." : "TIENDA ACTIVA"}
+            </span>
+            <span className="main">{storeName}</span>
+          </div>
         </div>
 
         <div className="topbar-right">
-          <div className="topbar-pill">
+          <div className="topbar-pill hide-mobile">
             {new Date().toLocaleDateString("es-AR", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric"
             })}
-          </div>
-          <div className="topbar-pill">
-            Ruta: {location.pathname.replace("/", "") || "dashboard"}
           </div>
           {realAdmin ? (
             <button
@@ -152,13 +117,11 @@ export default function Layout({ children }) {
               title="Cambiar vista de rol"
             >
               <span className="role-switch-icon">{admin ? "👑" : "👤"}</span>
-              <span className="role-switch-label">
-                {admin ? "Admin" : "Empleado"}
-              </span>
-              <span className="role-switch-arrow">⇄</span>
+              <span className="role-switch-label">{admin ? "Admin" : "Empleado"}</span>
+              <span className="role-switch-arrow hide-mobile">⇄</span>
             </button>
           ) : (
-            <div className="topbar-pill">Rol: Empleado</div>
+            <div className="topbar-pill">Empleado</div>
           )}
           <div className="avatar">{userInitial}</div>
         </div>

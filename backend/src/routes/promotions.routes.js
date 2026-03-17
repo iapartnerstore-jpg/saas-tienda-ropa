@@ -1,7 +1,11 @@
 import { Router } from 'express';
+import { requireAuth } from '../middleware/auth.js';
 import corePool from '../utils/tenantDb.js';
 
 const router = Router();
+
+// Proteger todas las rutas de promociones
+router.use(requireAuth);
 
 let schemaReady = false;
 

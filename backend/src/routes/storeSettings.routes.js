@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireAuth } from '../middleware/auth.js';
 import { getCorePool } from '../config/coreDb.js';
 
 const router = Router();
@@ -79,8 +80,9 @@ router.get('/', async (req, res) => {
  * PUT /store/settings
  * Guarda/actualiza configuración (id = 1)
  * Acepta tanto camelCase como snake_case en el body.
+ * Requiere autenticación.
  */
-router.put('/', async (req, res) => {
+router.put('/', requireAuth, async (req, res) => {
   try {
     await ensureStoreSettingsSchema();
 

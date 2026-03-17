@@ -72,7 +72,7 @@ router.post('/login', tenantResolver, async (req, res) => {
         role: user.role,
         tenant: req.tenant.slug
       },
-      process.env.JWT_SECRET || 'changeme',
+      process.env.JWT_SECRET,
       { expiresIn: '8h' }
     )
 
