@@ -3,6 +3,11 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 const PROMOTION_TYPES = [
   { value: "combo", label: "Combo" },
   { value: "liquidacion", label: "Liquidacion" },
@@ -36,8 +41,8 @@ export default function PromotionsPage() {
     try {
       setLoading(true);
       const [promoRes, productRes] = await Promise.all([
-        axios.get(`${API_URL}/promotions`),
-        axios.get(`${API_URL}/products`),
+        axios.get(`${API_URL}/promotions`, { headers: getAuthHeaders() }),
+        axios.get(`${API_URL}/products`, { headers: getAuthHeaders() }),
       ]);
       setPromotions(promoRes.data || []);
       setProducts(productRes.data || []);
@@ -96,7 +101,7 @@ export default function PromotionsPage() {
           })),
       };
 
-      const { data } = await axios.post(`${API_URL}/promotions`, payload);
+      const { data } = await axios.post(`${API_URL}/promotions`, payload, { headers: getAuthHeaders() });
       setPromotions((prev) => [data, ...prev]);
       setForm(emptyForm);
       setMsg("Promocion creada");
@@ -110,7 +115,7 @@ export default function PromotionsPage() {
 
   const togglePromotion = async (id) => {
     try {
-      const { data } = await axios.patch(`${API_URL}/promotions/${id}/toggle`);
+      const { data } = await axios.patch(`${API_URL}/promotions/${id}/toggle`, null, { headers: getAuthHeaders() });
       setPromotions((prev) => prev.map((item) => (item.id === id ? data : item)));
     } catch (err) {
       console.error("PATCH /promotions/:id/toggle", err?.response?.data || err);
@@ -121,7 +126,7 @@ export default function PromotionsPage() {
   const deletePromotion = async (id) => {
     if (!confirm("Eliminar promocion?")) return;
     try {
-      await axios.delete(`${API_URL}/promotions/${id}`);
+      await axios.delete(`${API_URL}/promotions/${id}`, { headers: getAuthHeaders() });
       setPromotions((prev) => prev.filter((item) => item.id !== id));
       setMsg("Promocion eliminada");
     } catch (err) {

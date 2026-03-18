@@ -95,10 +95,17 @@ router.put("/:id", async (req, res) => {
 
 /** ============================
  *  DELETE – ELIMINAR CLIENTE
+ *  Desvincula ventas asociadas antes de borrar
  *  ============================ */
 router.delete("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
+
+    // Desvincular ventas asociadas (poner customer_id = NULL)
+    await corePool.query(
+      `UPDATE sales SET customer_id = NULL WHERE customer_id = ?`,
+      [id]
+    );
 
     const [result] = await corePool.query(
       `DELETE FROM customers WHERE id = ?`,

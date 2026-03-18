@@ -288,7 +288,7 @@ router.put('/:id', async (req, res) => {
 
 /** ============================
  *  DELETE /products/:id
- *  Eliminar producto
+ *  Eliminar producto (desvincula sale_items y promotion_items primero)
  *  ============================ */
 router.delete('/:id', async (req, res) => {
   try {
@@ -297,6 +297,18 @@ router.delete('/:id', async (req, res) => {
     if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ message: 'ID inválido' });
     }
+
+    // Desvincular de sale_items (poner product_id = NULL o borrar refs)
+    await corePool.query(
+      `DELETE FROM sale_items WHERE product_id = ?`,
+      [id]
+    ).catch(() => {});
+
+    // Desvincular de promotion_items
+    await corePool.query(
+      `DELETE FROM promotion_items WHERE product_id = ?`,
+      [id]
+    ).catch(() => {});
 
     const [result] = await corePool.query(
       `DELETE FROM products WHERE id = ?`,

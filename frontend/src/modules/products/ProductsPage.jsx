@@ -3,6 +3,11 @@ import axios from "axios";
  
 const API_URL = import.meta.env.VITE_API_URL;
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 const PRODUCT_CATEGORIES = [
   { value: "varon", label: "Varon" },
   { value: "mujer", label: "Mujer" },
@@ -79,7 +84,7 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${API_URL}/products`);
+      const { data } = await axios.get(`${API_URL}/products`, { headers: getAuthHeaders() });
       setItems(data || []);
     } catch (e) {
       console.error("GET /products error", e);
@@ -155,11 +160,11 @@ const ProductsPage = () => {
       };
 
       if (editing) {
-        const { data } = await axios.put(`${API_URL}/products/${editing}`, payload);
+        const { data } = await axios.put(`${API_URL}/products/${editing}`, payload, { headers: getAuthHeaders() });
         setItems((prev) => prev.map((p) => (p.id === editing ? data : p)));
         setMsg("Producto actualizado");
       } else {
-        const { data } = await axios.post(`${API_URL}/products`, payload);
+        const { data } = await axios.post(`${API_URL}/products`, payload, { headers: getAuthHeaders() });
         setItems((prev) => [data, ...prev]);
         setMsg("Producto agregado");
       }
@@ -177,7 +182,7 @@ const ProductsPage = () => {
   const onDelete = async (id) => {
     if (!confirm("Eliminar este producto?")) return;
     try {
-      await axios.delete(`${API_URL}/products/${id}`);
+      await axios.delete(`${API_URL}/products/${id}`, { headers: getAuthHeaders() });
       setItems((prev) => prev.filter((it) => it.id !== id));
       setMsg("Producto eliminado");
     } catch (e) {
