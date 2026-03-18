@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node backend/src/index.js",
     "dev": "node --watch backend/src/index.js",
-    "build": "cd frontend && npm run build",
+    "build": "node -e \"console.log('Build omitido en servidor: usando frontend/dist ya generado')\"",
     "postinstall": "cd backend && npm install --production",
     "db:init": "node scripts/init-hostinger-db.mjs"
   },
