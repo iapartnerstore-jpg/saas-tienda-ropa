@@ -57,7 +57,11 @@ app.use('/api/store/providers', providersRoutes);
 app.use('/api/promotions', promotionsRoutes);
 
 // ── Servir frontend en producción ──────────────────────────────────
-const frontendDist = path.join(__dirname, '../../frontend/dist');
+// Soporta ambas estructuras: monorepo (../../frontend/dist) y flat (../frontend/dist)
+import fs from 'fs';
+const frontendDistMonorepo = path.join(__dirname, '../../frontend/dist');
+const frontendDistFlat = path.join(__dirname, '../frontend/dist');
+const frontendDist = fs.existsSync(frontendDistMonorepo) ? frontendDistMonorepo : frontendDistFlat;
 app.use(express.static(frontendDist));
 
 // Cualquier ruta que NO sea API → devolver index.html (SPA)
