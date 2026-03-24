@@ -141,12 +141,17 @@ button.delete:hover {
   width: 100%;
 }
 
-/* ─── Inline actions (hidden on desktop, shown on mobile) ─── */
+/* ─── Mobile cards: hidden on desktop ─── */
+.mobile-only-cards {
+  display: none;
+}
+
+/* ─── Inline actions: hidden everywhere (no longer used) ─── */
 .mobile-inline-actions {
   display: none !important;
 }
 
-/* ─── Wrapper global (Desktop + Mobile) ─── */
+/* ─── Wrapper global (Desktop) ─── */
 .products-table-wrapper {
   max-height: 480px;
   overflow-y: auto;
@@ -154,82 +159,135 @@ button.delete:hover {
   width: 100%;
 }
 
-/* ─── Mobile responsive ─── */
+/* ═══════════════════════════════════════════════════
+   MOBILE: Ocultar tabla, mostrar tarjetas
+   ═══════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* STRICT ROOT CONTAINER BOUNDS - Prevent parent grid expansion */
-  .products-page {
-    width: calc(100vw - 24px) !important;
-    max-width: calc(100vw - 24px) !important;
-    overflow-x: hidden !important;
-    display: block !important; /* Override inline grid if needed */
+  /* Hide table on mobile */
+  .desktop-only-table {
+    display: none !important;
   }
 
-  /* Card: remove horizontal padding so wrapper fills edge-to-edge, force bounds */
+  /* Show cards on mobile */
+  .mobile-only-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 4px;
+  }
+
+  /* ─── Product card ─── */
+  .product-card-mobile {
+    background: #fdfbf7;
+    border: 1px solid #e8ddd4;
+    border-radius: 14px;
+    padding: 14px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Header: nombre + precio */
+  .pcm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .pcm-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e1b4b;
+    line-height: 1.3;
+  }
+
+  .pcm-id {
+    font-size: 12px;
+    font-weight: 400;
+    color: #9c8c7e;
+    margin-left: 4px;
+  }
+
+  .pcm-price {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1e1b4b;
+    white-space: nowrap;
+  }
+
+  /* Detail rows */
+  .pcm-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .pcm-row {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: #4a4358;
+    flex-wrap: wrap;
+  }
+
+  .pcm-seg {
+    color: #0d9488;
+  }
+
+  /* Footer: margen + botones */
+  .pcm-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px solid #ede5da;
+  }
+
+  .pcm-margin {
+    font-size: 14px;
+    font-weight: 700;
+    color: #16a34a;
+  }
+
+  .pcm-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .pcm-btn-edit {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1.5px solid rgba(59, 130, 246, 0.4);
+    background: rgba(59, 130, 246, 0.08);
+    color: #3b82f6;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .pcm-btn-delete {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1.5px solid rgba(220, 38, 38, 0.35);
+    background: rgba(220, 38, 38, 0.06);
+    color: #dc2626;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* Card container */
   .products-page .dash-card.sales-list {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-    padding: 12px 0;
-    margin: 0 !important;
-    box-sizing: border-box !important;
+    padding: 12px 8px;
   }
 
   .products-page .dash-card.sales-list .title {
-    padding: 0 12px;
-  }
-
-  /* Scrollable table wrapper — styled scrollbar */
-  .products-table-wrapper {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    display: block !important;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: #c4b5a5 #f0ebe5;
-  }
-
-  .products-table-wrapper::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  .products-table-wrapper::-webkit-scrollbar-track {
-    background: #f0ebe5;
-    border-radius: 4px;
-  }
-
-  .products-table-wrapper::-webkit-scrollbar-thumb {
-    background: #c4b5a5;
-    border-radius: 4px;
-  }
-
-  /* Show inline buttons only on mobile */
-  .mobile-inline-actions {
-    display: flex !important;
-    flex-direction: column;
-    gap: 3px;
-    margin-top: 4px;
-  }
-
-  .mobile-inline-actions button {
-    padding: 1px 7px;
-    font-size: 9px;
-    border-radius: 4px;
-    cursor: pointer;
-    line-height: 1.5;
-    border: 1px solid rgba(13, 148, 136, 0.5);
-    background: rgba(13, 148, 136, 0.08);
-    color: #0d9488;
-    white-space: nowrap;
-    font-weight: 500;
-    width: fit-content;
-  }
-
-  .mobile-inline-actions button.delete {
-    border: 1px solid rgba(124, 58, 237, 0.45);
-    background: rgba(124, 58, 237, 0.08);
-    color: #7c3aed;
+    padding: 0 4px;
   }
 
   .modal {

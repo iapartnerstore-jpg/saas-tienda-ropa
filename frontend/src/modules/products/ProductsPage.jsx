@@ -284,7 +284,9 @@ const ProductsPage = () => {
               : "No hay productos con este filtro"}
           </div>
         ) : (
-          <div className="products-table-wrapper">
+          <>
+          {/* ═══ DESKTOP: Tabla completa (oculta en celular) ═══ */}
+          <div className="products-table-wrapper desktop-only-table">
             <table className="products-table" style={{
               borderCollapse: "collapse",
               fontSize: 13,
@@ -337,21 +339,6 @@ const ProductsPage = () => {
                       {it.description && (
                         <div style={{ fontSize: 11, color: "var(--text-soft)" }}>{it.description}</div>
                       )}
-                      <div className="mobile-inline-actions">
-                        <button
-                          onClick={() => openEdit(it)}
-                          type="button"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => onDelete(it.id)}
-                          className="delete"
-                          type="button"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
                     </td>
                     <td style={{ padding: "8px 10px", color: "var(--primary)" }}>
                       {getCategoryLabel(it.category)}
@@ -394,6 +381,37 @@ const ProductsPage = () => {
               </tbody>
             </table>
           </div>
+
+          {/* ═══ MOBILE: Tarjetas de producto (oculto en desktop) ═══ */}
+          <div className="mobile-only-cards">
+            {filteredItems.map((it) => (
+              <div className="product-card-mobile" key={it.id}>
+                <div className="pcm-header">
+                  <div className="pcm-name">{it.name} <span className="pcm-id">#{it.id}</span></div>
+                  <div className="pcm-price">${Number(it.price).toLocaleString()}</div>
+                </div>
+                <div className="pcm-details">
+                  <div className="pcm-row">
+                    <span>Segmento: <strong className="pcm-seg">{getCategoryLabel(it.category)}</strong></span>
+                    <span>Tipo: <strong>{getDepartmentLabel(it.department)}</strong></span>
+                  </div>
+                  <div className="pcm-row">
+                    <span>Talla: {it.size || "-"} / {it.color || "-"} / {it.season || "-"}</span>
+                    <span>Stock: <strong>{it.stock}</strong></span>
+                  </div>
+                  {it.brand && <div className="pcm-row"><span>Marca: {it.brand}</span></div>}
+                </div>
+                <div className="pcm-footer">
+                  <span className="pcm-margin">{calcMargin(it.cost, it.price)}%</span>
+                  <div className="pcm-actions">
+                    <button className="pcm-btn-edit" onClick={() => openEdit(it)} type="button">✏ Editar</button>
+                    <button className="pcm-btn-delete" onClick={() => onDelete(it.id)} type="button">🗑 Eliminar</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
         )}
       </div>
 
