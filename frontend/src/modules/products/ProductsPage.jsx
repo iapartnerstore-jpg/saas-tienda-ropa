@@ -199,7 +199,7 @@ const ProductsPage = () => {
 
   return (
     <div className="products-page" style={{ display: "grid", gap: 16 }}>
-      <div className="pos-right">
+      <div className="pos-right" style={{ order: -1 }}>
         <div className="pos-search">
           <h2 style={{ margin: 0, fontSize: 18 }}>Productos</h2>
           <button onClick={openNew} style={{ padding: "8px 16px" }}>
