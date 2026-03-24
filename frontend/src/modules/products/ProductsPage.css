@@ -146,11 +146,32 @@ button.delete:hover {
   display: none !important;
 }
 
+/* ─── Wrapper global (Desktop + Mobile) ─── */
+.products-table-wrapper {
+  max-height: 480px;
+  overflow-y: auto;
+  overflow-x: auto;
+  width: 100%;
+}
+
 /* ─── Mobile responsive ─── */
 @media (max-width: 768px) {
-  /* Card: remove horizontal padding so wrapper fills edge-to-edge */
+  /* STRICT ROOT CONTAINER BOUNDS - Prevent parent grid expansion */
+  .products-page {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+    overflow-x: hidden !important;
+    display: block !important; /* Override inline grid if needed */
+  }
+
+  /* Card: remove horizontal padding so wrapper fills edge-to-edge, force bounds */
   .products-page .dash-card.sales-list {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
     padding: 12px 0;
+    margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .products-page .dash-card.sales-list .title {
@@ -159,6 +180,11 @@ button.delete:hover {
 
   /* Scrollable table wrapper — styled scrollbar */
   .products-table-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    display: block !important;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: #c4b5a5 #f0ebe5;
