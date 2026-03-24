@@ -284,10 +284,11 @@ const ProductsPage = () => {
               : "No hay productos con este filtro"}
           </div>
         ) : (
-          <div className="products-table-wrapper" style={{ overflowX: "auto", maxHeight: 480, overflowY: "auto", minWidth: 0 }}>
+          <div className="products-table-wrapper" style={{ width: 0, minWidth: "100%", overflowX: "auto", maxHeight: 480, overflowY: "auto" }}>
             <table className="products-table" style={{
               borderCollapse: "collapse",
               fontSize: 13,
+              minWidth: 960,
             }}>
               <colgroup>
                 <col style={{ width: 52 }} />

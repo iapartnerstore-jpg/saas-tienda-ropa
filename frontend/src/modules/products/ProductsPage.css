@@ -148,17 +148,8 @@ button.delete:hover {
 
 /* ─── Mobile responsive ─── */
 @media (max-width: 768px) {
-  /* Grid children must not expand beyond viewport */
-  .products-page {
-    min-width: 0 !important;
-    max-width: 100vw !important;
-    overflow: hidden;
-  }
-
-  /* Card must constrain its children */
+  /* Card: remove horizontal padding so wrapper fills edge-to-edge */
   .products-page .dash-card.sales-list {
-    min-width: 0 !important;
-    overflow: hidden !important;
     padding: 12px 0;
   }
 
@@ -166,13 +157,8 @@ button.delete:hover {
     padding: 0 12px;
   }
 
-  /* Scrollable table wrapper — horizontal scroll lives here */
+  /* Scrollable table wrapper — styled scrollbar */
   .products-table-wrapper {
-    display: block !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    overflow-x: auto !important;
-    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: #c4b5a5 #f0ebe5;
@@ -190,13 +176,6 @@ button.delete:hover {
   .products-table-wrapper::-webkit-scrollbar-thumb {
     background: #c4b5a5;
     border-radius: 4px;
-  }
-
-  /* Force the table wider than the viewport so scroll activates */
-  .products-table {
-    table-layout: fixed !important;
-    min-width: 960px !important;
-    width: 960px !important;
   }
 
   /* Show inline buttons only on mobile */
