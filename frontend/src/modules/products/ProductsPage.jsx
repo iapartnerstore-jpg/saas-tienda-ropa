@@ -198,8 +198,8 @@ const ProductsPage = () => {
   };
 
   return (
-    <div className="products-page" style={{ display: "grid", gap: 16 }}>
-      <div className="pos-right">
+    <div className="products-page" style={{ display: "grid", gap: 16, width: "100%", minWidth: 0, overflow: "hidden" }}>
+      <div className="pos-right" style={{ minWidth: 0 }}>
         <div className="pos-search">
           <h2 style={{ margin: 0, fontSize: 18 }}>Productos</h2>
           <button onClick={openNew} style={{ padding: "8px 16px" }}>
@@ -270,7 +270,7 @@ const ProductsPage = () => {
         </div>
       )}
 
-      <div className="dash-card sales-list" style={{ maxWidth: 1600, minWidth: 0 }}>
+      <div className="dash-card sales-list" style={{ maxWidth: 1600, minWidth: 0, width: "100%", overflow: "hidden" }}>
         <div className="title" style={{ marginBottom: 8 }}>
           Listado de productos
         </div>
@@ -284,11 +284,13 @@ const ProductsPage = () => {
               : "No hay productos con este filtro"}
           </div>
         ) : (
-          <div className="products-table-wrapper" style={{ width: 0, minWidth: "100%", overflowX: "auto", maxHeight: 480, overflowY: "auto" }}>
+          <div className="products-table-wrapper" style={{ width: "100%", overflowX: "auto", maxHeight: 480, overflowY: "auto", display: "block" }}>
             <table className="products-table" style={{
               borderCollapse: "collapse",
               fontSize: 13,
-              minWidth: 960,
+              width: 964,
+              minWidth: 964,
+              tableLayout: "fixed",
             }}>
               <colgroup>
                 <col style={{ width: 52 }} />
