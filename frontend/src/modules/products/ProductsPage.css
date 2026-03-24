@@ -135,3 +135,85 @@ button.delete:hover {
   margin: 0 4px;
   padding: 9px 12px;
 }
+
+/* ─── Inline actions (hidden on desktop, shown on mobile) ─── */
+.mobile-inline-actions {
+  display: none !important;
+}
+
+/* ─── Mobile responsive ─── */
+@media (max-width: 768px) {
+  /* Allow the parent card to not clip the scroll */
+  .products-page .dash-card.sales-list {
+    overflow: visible;
+    padding: 12px 0;
+  }
+
+  .products-page .dash-card.sales-list .title {
+    padding: 0 12px;
+  }
+
+  /* Scrollable table wrapper */
+  .products-table-wrapper {
+    display: block !important;
+    width: 100%;
+    overflow-x: scroll !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #c4b5a5 #f0ebe5;
+  }
+
+  .products-table-wrapper::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .products-table-wrapper::-webkit-scrollbar-track {
+    background: #f0ebe5;
+    border-radius: 4px;
+  }
+
+  .products-table-wrapper::-webkit-scrollbar-thumb {
+    background: #c4b5a5;
+    border-radius: 4px;
+  }
+
+  .products-table {
+    table-layout: fixed !important;
+    min-width: 960px !important;
+    width: 960px !important;
+  }
+
+  /* Show inline buttons only on mobile */
+  .mobile-inline-actions {
+    display: flex !important;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 4px;
+  }
+
+  .mobile-inline-actions button {
+    padding: 1px 7px;
+    font-size: 9px;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1.5;
+    border: 1px solid rgba(13, 148, 136, 0.5);
+    background: rgba(13, 148, 136, 0.08);
+    color: #0d9488;
+    white-space: nowrap;
+    font-weight: 500;
+    width: fit-content;
+  }
+
+  .mobile-inline-actions button.delete {
+    border: 1px solid rgba(124, 58, 237, 0.45);
+    background: rgba(124, 58, 237, 0.08);
+    color: #7c3aed;
+  }
+
+  .modal {
+    width: 92vw;
+    max-width: 340px;
+    padding: 20px 16px;
+  }
+}
