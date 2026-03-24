@@ -136,6 +136,11 @@ button.delete:hover {
   padding: 9px 12px;
 }
 
+/* ─── Desktop: tabla ocupa todo el ancho ─── */
+.products-table {
+  width: 100%;
+}
+
 /* ─── Inline actions (hidden on desktop, shown on mobile) ─── */
 .mobile-inline-actions {
   display: none !important;
@@ -145,7 +150,7 @@ button.delete:hover {
 @media (max-width: 768px) {
   /* Allow the parent card to not clip the scroll */
   .products-page .dash-card.sales-list {
-    overflow: visible;
+    overflow: visible !important;
     padding: 12px 0;
   }
 
@@ -153,11 +158,13 @@ button.delete:hover {
     padding: 0 12px;
   }
 
-  /* Scrollable table wrapper */
+  /* Scrollable table wrapper — MUST allow horizontal scroll */
   .products-table-wrapper {
     display: block !important;
-    width: 100%;
-    overflow-x: scroll !important;
+    width: 100% !important;
+    max-width: calc(100vw - 24px) !important; /* stay inside viewport */
+    overflow-x: auto !important;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: #c4b5a5 #f0ebe5;
@@ -177,6 +184,7 @@ button.delete:hover {
     border-radius: 4px;
   }
 
+  /* Force the table wider than the viewport so scroll activates */
   .products-table {
     table-layout: fixed !important;
     min-width: 960px !important;

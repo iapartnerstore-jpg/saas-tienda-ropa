@@ -286,7 +286,6 @@ const ProductsPage = () => {
         ) : (
           <div className="products-table-wrapper" style={{ overflowX: "auto", maxHeight: 480, overflowY: "auto" }}>
             <table className="products-table" style={{
-              width: "100%",
               borderCollapse: "collapse",
               fontSize: 13,
             }}>
