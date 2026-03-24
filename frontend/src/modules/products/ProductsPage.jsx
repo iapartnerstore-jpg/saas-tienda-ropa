@@ -270,7 +270,7 @@ const ProductsPage = () => {
         </div>
       )}
 
-      <div className="dash-card sales-list" style={{ maxWidth: 1600 }}>
+      <div className="dash-card sales-list" style={{ maxWidth: 1600, minWidth: 0 }}>
         <div className="title" style={{ marginBottom: 8 }}>
           Listado de productos
         </div>
@@ -284,7 +284,7 @@ const ProductsPage = () => {
               : "No hay productos con este filtro"}
           </div>
         ) : (
-          <div className="products-table-wrapper" style={{ overflowX: "auto", maxHeight: 480, overflowY: "auto" }}>
+          <div className="products-table-wrapper" style={{ overflowX: "auto", maxHeight: 480, overflowY: "auto", minWidth: 0 }}>
             <table className="products-table" style={{
               borderCollapse: "collapse",
               fontSize: 13,
