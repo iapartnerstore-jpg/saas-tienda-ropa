@@ -283,24 +283,22 @@ const ProductsPage = () => {
               : "No hay productos con este filtro"}
           </div>
         ) : (
-          <div style={{ overflowX: "auto", maxHeight: 480, overflowY: "auto" }}>
-            <table style={{
+          <div className="products-table-wrapper" style={{ overflowX: "auto", maxHeight: 480, overflowY: "auto" }}>
+            <table className="products-table" style={{
               width: "100%",
               borderCollapse: "collapse",
               fontSize: 13,
-              tableLayout: "fixed",
-              minWidth: 964,
             }}>
               <colgroup>
                 <col style={{ width: 52 }} />
                 <col style={{ width: 180 }} />
                 <col style={{ width: 110 }} />
-                <col style={{ width: 90 }} />
-                <col style={{ width: 150 }} />
-                <col style={{ width: 72 }} />
+                <col className="col-tipo" style={{ width: 90 }} />
+                <col className="col-attr" style={{ width: 150 }} />
+                <col className="col-stock" style={{ width: 72 }} />
                 <col style={{ width: 96 }} />
-                <col style={{ width: 84 }} />
-                <col style={{ width: 130 }} />
+                <col className="col-margen" style={{ width: 84 }} />
+                <col className="col-acciones" style={{ width: 130 }} />
               </colgroup>
               <thead>
                 <tr style={{
@@ -310,9 +308,15 @@ const ProductsPage = () => {
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
                 }}>
-                  {["ID","Nombre","Segmento","Tipo","Atributos","Stock","Precio","Margen","Acciones"].map(h => (
-                    <th key={h} style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>{h}</th>
-                  ))}
+                  <th style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>ID</th>
+                  <th style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>Nombre</th>
+                  <th style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>Segmento</th>
+                  <th className="col-tipo" style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>Tipo</th>
+                  <th className="col-attr" style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>Atributos</th>
+                  <th className="col-stock" style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>Stock</th>
+                  <th style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>Precio</th>
+                  <th className="col-margen" style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>Margen</th>
+                  <th className="col-acciones" style={{ padding: "8px 10px", fontWeight: 600, textAlign: "left", position: "sticky", top: 0, background: "#ede5da", zIndex: 1 }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -330,26 +334,41 @@ const ProductsPage = () => {
                       {it.description && (
                         <div style={{ fontSize: 11, color: "var(--text-soft)" }}>{it.description}</div>
                       )}
+                      <div className="mobile-inline-actions">
+                        <button
+                          onClick={() => openEdit(it)}
+                          type="button"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => onDelete(it.id)}
+                          className="delete"
+                          type="button"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                     <td style={{ padding: "8px 10px", color: "var(--primary)" }}>
                       {getCategoryLabel(it.category)}
                     </td>
-                    <td style={{ padding: "8px 10px" }}>
+                    <td className="col-tipo" style={{ padding: "8px 10px" }}>
                       {getDepartmentLabel(it.department)}
                     </td>
-                    <td style={{ padding: "8px 10px", fontSize: 11, color: "var(--text-soft)" }}>
+                    <td className="col-attr" style={{ padding: "8px 10px", fontSize: 11, color: "var(--text-soft)" }}>
                       {(it.brand || "-") + " / " + (it.model || "-")}
                       <br />
                       {(it.size || "-") + " / " + (it.color || "-") + " / " + (it.season || "-")}
                     </td>
-                    <td style={{ padding: "8px 10px" }}>{it.stock}</td>
+                    <td className="col-stock" style={{ padding: "8px 10px" }}>{it.stock}</td>
                     <td style={{ padding: "8px 10px", fontWeight: 700 }}>
                       ${Number(it.price).toLocaleString()}
                     </td>
-                    <td style={{ padding: "8px 10px", color: "#16a34a", fontWeight: 600 }}>
+                    <td className="col-margen" style={{ padding: "8px 10px", color: "#16a34a", fontWeight: 600 }}>
                       {calcMargin(it.cost, it.price)}%
                     </td>
-                    <td style={{ padding: "8px 10px" }}>
+                    <td className="col-acciones" style={{ padding: "8px 10px" }}>
                       <div style={{ display: "flex", gap: 6 }}>
                         <button
                           onClick={() => openEdit(it)}
