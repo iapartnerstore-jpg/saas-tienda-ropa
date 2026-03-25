@@ -22,8 +22,14 @@ const ensureProductsSchema = async () => {
      ADD COLUMN IF NOT EXISTS color VARCHAR(64) NULL,
      ADD COLUMN IF NOT EXISTS model VARCHAR(128) NULL,
      ADD COLUMN IF NOT EXISTS season VARCHAR(64) NULL,
-     ADD COLUMN IF NOT EXISTS brand VARCHAR(128) NULL`
+     ADD COLUMN IF NOT EXISTS brand VARCHAR(128) NULL,
+     ADD COLUMN IF NOT EXISTS barcode VARCHAR(100) NULL`
   );
+
+  // Índice único para barcodes (ignorar si ya existe)
+  try {
+    await corePool.query(`CREATE UNIQUE INDEX idx_products_barcode ON products(barcode)`)
+  } catch (_) { /* ya existe */ }
 
   productsSchemaReady = true;
 };
@@ -61,7 +67,7 @@ router.get('/', async (_req, res) => {
     await ensureProductsSchema();
 
     const [rows] = await corePool.query(
-      `SELECT id, name, category, department, size, color, model, season, brand, description, cost, price, stock
+      `SELECT id, name, category, department, size, color, model, season, brand, description, cost, price, stock, barcode
        FROM products
        ORDER BY id DESC`
     );
@@ -69,6 +75,27 @@ router.get('/', async (_req, res) => {
   } catch (err) {
     console.error('❌ GET /products', err);
     res.status(500).json({ message: 'Error al obtener productos' });
+  }
+});
+
+/** ============================
+ *  GET /products/barcode/:code
+ *  Buscar producto por código de barras
+ *  (debe ir ANTES de /:id)
+ *  ============================ */
+router.get('/barcode/:code', async (req, res) => {
+  try {
+    await ensureProductsSchema();
+    const [rows] = await corePool.query(
+      `SELECT id, name, category, department, size, color, model, season, brand, description, cost, price, stock, barcode
+       FROM products WHERE barcode = ? LIMIT 1`,
+      [req.params.code]
+    );
+    if (!rows[0]) return res.status(404).json({ message: 'Producto no encontrado' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('❌ GET /products/barcode/:code', err);
+    res.status(500).json({ message: 'Error al buscar por código de barras' });
   }
 });
 
@@ -92,7 +119,8 @@ router.post('/', async (req, res) => {
       description = '',
       cost,
       price,
-      stock
+      stock,
+      barcode
     } = req.body || {};
 
     // Validaciones
@@ -134,9 +162,15 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Stock inválido' });
     }
 
+    const normalizedBarcode = barcode?.trim() || null;
+    if (normalizedBarcode) {
+      const [dup] = await corePool.query('SELECT id FROM products WHERE barcode = ? LIMIT 1', [normalizedBarcode]);
+      if (dup.length) return res.status(409).json({ message: 'El código de barras ya está registrado en otro producto' });
+    }
+
     const [result] = await corePool.query(
-      `INSERT INTO products (name, category, department, size, color, model, season, brand, description, cost, price, stock)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO products (name, category, department, size, color, model, season, brand, description, cost, price, stock, barcode)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name.trim(),
         normalizedCategory,
@@ -149,7 +183,8 @@ router.post('/', async (req, res) => {
         description.trim() || null,
         numericCost,
         numericPrice,
-        numericStock
+        numericStock,
+        normalizedBarcode
       ]
     );
 
@@ -166,7 +201,8 @@ router.post('/', async (req, res) => {
       description: description.trim() || null,
       cost: numericCost,
       price: numericPrice,
-      stock: numericStock
+      stock: numericStock,
+      barcode: normalizedBarcode
     });
   } catch (err) {
     console.error('❌ POST /products', err);
@@ -198,7 +234,8 @@ router.put('/:id', async (req, res) => {
       description,
       cost,
       price,
-      stock
+      stock,
+      barcode
     } = req.body;
 
     if (!Number.isInteger(id) || id <= 0) {
@@ -243,9 +280,15 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json({ message: 'Stock inválido' });
     }
 
+    const normalizedBarcode = barcode?.trim() || null;
+    if (normalizedBarcode) {
+      const [dup] = await corePool.query('SELECT id FROM products WHERE barcode = ? AND id != ? LIMIT 1', [normalizedBarcode, id]);
+      if (dup.length) return res.status(409).json({ message: 'El código de barras ya está registrado en otro producto' });
+    }
+
     const [result] = await corePool.query(
-      `UPDATE products 
-       SET name = ?, category = ?, department = ?, size = ?, color = ?, model = ?, season = ?, brand = ?, description = ?, cost = ?, price = ?, stock = ?
+      `UPDATE products
+       SET name = ?, category = ?, department = ?, size = ?, color = ?, model = ?, season = ?, brand = ?, description = ?, cost = ?, price = ?, stock = ?, barcode = ?
        WHERE id = ?`,
       [
         name.trim(),
@@ -260,6 +303,7 @@ router.put('/:id', async (req, res) => {
         numericCost,
         numericPrice,
         numericStock,
+        normalizedBarcode,
         id
       ]
     );
@@ -270,7 +314,7 @@ router.put('/:id', async (req, res) => {
 
     // Devolver producto actualizado
     const [rows] = await corePool.query(
-      `SELECT id, name, category, department, size, color, model, season, brand, description, cost, price, stock
+      `SELECT id, name, category, department, size, color, model, season, brand, description, cost, price, stock, barcode
        FROM products
        WHERE id = ?`,
       [id]

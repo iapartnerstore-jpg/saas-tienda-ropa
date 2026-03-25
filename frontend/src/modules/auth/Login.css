@@ -1,84 +1,149 @@
 .login-wrapper {
-  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at top left, #111827 0%, #020617 80%);
-  color: #e5e7eb;
+  position: relative;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Imagen de fondo como pseudo-elemento para control total */
+.login-wrapper::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/login-bg.jpeg');
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* Overlay suave para legibilidad */
+.login-wrapper::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.22);
+  z-index: 1;
 }
 
 .login-box {
-  width: 90%;
-  max-width: 350px;
-  background: rgba(17, 24, 39, 0.85);
-  border-radius: 18px;
-  padding: 30px 25px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 360px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 22px;
+  padding: 36px 28px 28px;
+  box-shadow: 0 8px 40px rgba(120, 80, 200, 0.18), 0 2px 12px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 14px;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .login-box h1 {
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   margin-bottom: 2px;
-  color: #38bdf8;
+  color: var(--primary);
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .login-box .subtitle {
   text-align: center;
-  color: #9ca3af;
+  color: var(--text-soft);
   font-size: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .login-box input {
-  padding: 10px 12px;
+  padding: 11px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(75, 85, 99, 0.5);
-  background: rgba(9, 9, 11, 0.9);
-  color: #e5e7eb;
-  font-size: 13px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-main);
+  font-size: 14px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .login-box input:focus {
-  border-color: #38bdf8;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 .login-box button {
-  padding: 10px;
+  padding: 12px;
   border-radius: 12px;
   border: none;
-  background: linear-gradient(90deg, #38bdf8, #22d3ee);
-  color: #0f172a;
-  font-weight: 600;
-  font-size: 14px;
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
   cursor: pointer;
-  margin-top: 6px;
-  transition: all 0.25s ease;
+  margin-top: 4px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
 }
 
 .login-box button:hover {
-  background: linear-gradient(90deg, #7dd3fc, #38bdf8);
+  background: color-mix(in srgb, var(--primary) 85%, black);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.login-box button:active {
+  transform: translateY(0);
 }
 
 .error {
-  color: #ef4444;
+  color: var(--danger);
   font-size: 12px;
   text-align: center;
+  background: rgba(220, 38, 38, 0.07);
+  border-radius: 8px;
+  padding: 6px 10px;
 }
 
 .login-box footer {
-  margin-top: 8px;
+  margin-top: 4px;
   text-align: center;
   font-size: 11px;
-  color: #6b7280;
+  color: var(--text-soft);
+}
+
+/* ── Responsive mobile ── */
+@media (max-width: 600px) {
+  .login-wrapper::before {
+    /* En mobile portrait: mostrar más la parte superior con el logo */
+    background-position: top left;
+    background-size: auto 55%;
+    background-color: #f0ebff;
+  }
+
+  .login-wrapper {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 24px 24px 0 0;
+    padding: 28px 24px 36px;
+    box-shadow: 0 -4px 30px rgba(120, 80, 200, 0.15);
+    /* Fondo más opaco en mobile para legibilidad */
+    background: rgba(255, 255, 255, 0.94);
+  }
 }

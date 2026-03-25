@@ -22,10 +22,10 @@ export default function Login() {
       );
 
       console.log("Login ok", response.data);
-      localStorage.removeItem("roleOverride");
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("tenant", tenant);
       localStorage.setItem("authUser", JSON.stringify(response.data.user || {}));
+      window.dispatchEvent(new Event("authChanged"));
       window.location.href = "/dashboard";
     } catch (err) {
       console.error("Error login:", err);

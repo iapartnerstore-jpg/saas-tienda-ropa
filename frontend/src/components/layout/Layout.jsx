@@ -1,30 +1,45 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import React, { useCallback, useState, useEffect, useRef } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useStoreSettings } from "../../context/StoreSettingsContext.jsx";
-import { getAuthUser, toggleRole, useRole } from "../../utils/auth.js";
-
-
+import { getAuthUser, getUserName, hasPermission, useRole } from "../../utils/auth.js";
+import ProfileModal from "../../modules/users/ProfileModal.jsx";
 
 export default function Layout({ children }) {
   const { settings, loading } = useStoreSettings();
   const location = useLocation();
+  const navigate = useNavigate();
   const user = getAuthUser();
-  const { admin, realAdmin } = useRole();
-  const isOverriding = realAdmin && !admin;
+  const { admin } = useRole();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Cerrar menu al cambiar de ruta
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
 
-  const handleToggleRole = useCallback(() => {
-    toggleRole();
+  // Cerrar dropdown al click afuera
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    localStorage.clear();
+    window.location.href = "/";
   }, []);
 
   const storeName = settings?.storeName || "Tienda Alex";
   const logoUrl = settings?.logo_url || "";
-  const userInitial = (user?.email || "U").charAt(0).toUpperCase();
+  const userName = getUserName();
+  const userInitial = userName.charAt(0).toUpperCase();
 
   return (
     <div className="app-shell">
@@ -61,24 +76,44 @@ export default function Layout({ children }) {
           <NavLink to="/dashboard" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
             <span className="icon">🏠</span><span>Dashboard</span>
           </NavLink>
-          <NavLink to="/pos" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
-            <span className="icon">🧾</span><span>Punto de venta</span>
-          </NavLink>
-          <NavLink to="/productos" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
-            <span className="icon">📦</span><span>Productos</span>
-          </NavLink>
-          <NavLink to="/clientes" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
-            <span className="icon">👥</span><span>Clientes</span>
-          </NavLink>
-          <NavLink to="/proveedores" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
-            <span className="icon">🏭</span><span>Proveedores</span>
-          </NavLink>
-          <NavLink to="/promociones" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
-            <span className="icon">🔥</span><span>Promociones</span>
-          </NavLink>
-          {admin && (
+          {(admin || hasPermission("pos")) && (
+            <NavLink to="/pos" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+              <span className="icon">🧾</span><span>Punto de venta</span>
+            </NavLink>
+          )}
+          {(admin || hasPermission("productos")) && (
+            <NavLink to="/productos" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+              <span className="icon">📦</span><span>Productos</span>
+            </NavLink>
+          )}
+          {(admin || hasPermission("clientes")) && (
+            <NavLink to="/clientes" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+              <span className="icon">👥</span><span>Clientes</span>
+            </NavLink>
+          )}
+          {(admin || hasPermission("proveedores")) && (
+            <NavLink to="/proveedores" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+              <span className="icon">🏭</span><span>Proveedores</span>
+            </NavLink>
+          )}
+          {(admin || hasPermission("promociones")) && (
+            <NavLink to="/promociones" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+              <span className="icon">🔥</span><span>Promociones</span>
+            </NavLink>
+          )}
+          {(admin || hasPermission("reportes")) && (
             <NavLink to="/reportes" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
               <span className="icon">📊</span><span>Reportes</span>
+            </NavLink>
+          )}
+          {(admin || hasPermission("arqueo")) && (
+            <NavLink to="/arqueo" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+              <span className="icon">💰</span><span>Arqueo</span>
+            </NavLink>
+          )}
+          {admin && (
+            <NavLink to="/usuarios" className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}>
+              <span className="icon">👤</span><span>Usuarios</span>
             </NavLink>
           )}
         </nav>
@@ -110,25 +145,61 @@ export default function Layout({ children }) {
               year: "numeric"
             })}
           </div>
-          {realAdmin ? (
+
+          {/* Dropdown de usuario */}
+          <div className="user-dropdown-wrapper" ref={dropdownRef}>
             <button
-              className={`role-switch${isOverriding ? " role-switch--employee" : ""}`}
-              onClick={handleToggleRole}
-              title="Cambiar vista de rol"
+              className="user-pill"
+              onClick={() => setDropdownOpen((o) => !o)}
             >
-              <span className="role-switch-icon">{admin ? "👑" : "👤"}</span>
-              <span className="role-switch-label">{admin ? "Admin" : "Empleado"}</span>
-              <span className="role-switch-arrow hide-mobile">⇄</span>
+              <div className="avatar">{userInitial}</div>
+              <span className="user-pill-name hide-mobile">{userName}</span>
+              <span className={`role-badge role-badge--${user?.role === "admin" ? "admin" : "employee"}`}>
+                {admin ? "Admin" : "Empleado"}
+              </span>
             </button>
-          ) : (
-            <div className="topbar-pill">Empleado</div>
-          )}
-          <div className="avatar">{userInitial}</div>
+
+            {dropdownOpen && (
+              <div className="user-dropdown">
+                <div className="user-dropdown-header">
+                  <strong>{userName}</strong>
+                  <span>{user?.email}</span>
+                </div>
+                <div className="user-dropdown-divider" />
+                <button
+                  className="user-dropdown-item"
+                  onClick={() => { setShowProfile(true); setDropdownOpen(false); }}
+                >
+                  👤 Mi Perfil
+                </button>
+                {admin && (
+                  <button
+                    className="user-dropdown-item"
+                    onClick={() => { navigate("/usuarios"); setDropdownOpen(false); }}
+                  >
+                    👥 Gestionar Usuarios
+                  </button>
+                )}
+                <div className="user-dropdown-divider" />
+                <button
+                  className="user-dropdown-item user-dropdown-item--danger"
+                  onClick={handleLogout}
+                >
+                  🚪 Cerrar sesión
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       {/* MAIN */}
       <main className="app-main">{children}</main>
+
+      {/* Modal de perfil */}
+      {showProfile && (
+        <ProfileModal onClose={() => setShowProfile(false)} />
+      )}
     </div>
   );
 }

@@ -7,21 +7,25 @@ import Dashboard from './modules/dashboard/Dashboard'
 import PosPage from './modules/pos/PosPage'
 import ProductsPage from "./modules/products/ProductsPage"
 import ClientsPage from "./modules/customers/ClientsPage"
-
 import ReportsPage from "./modules/reports/ReportsPage"
 import CashRegisterPage from './arqueo/CashRegisterPage'
-import { isLoggedIn, useRole } from './utils/auth'
 import ProvidersPage from './modules/providers/ProvidersPage'
 import PromotionsPage from './modules/promotions/PromotionsPage'
+import UsersPage from './modules/users/UsersPage'
+import { isLoggedIn, isAdmin, hasPermission } from './utils/auth'
 
 function ProtectedRoute({ children }) {
   return isLoggedIn() ? children : <Navigate to="/" replace />
 }
 
 function AdminOnlyRoute({ children }) {
-  const { admin } = useRole()
   if (!isLoggedIn()) return <Navigate to="/" replace />
-  return admin ? children : <Navigate to="/dashboard" replace />
+  return isAdmin() ? children : <Navigate to="/dashboard" replace />
+}
+
+function PermissionRoute({ module, children }) {
+  if (!isLoggedIn()) return <Navigate to="/" replace />
+  return hasPermission(module) ? children : <Navigate to="/dashboard" replace />
 }
 
 function App() {
@@ -42,72 +46,81 @@ function App() {
         <Route
           path="/pos"
           element={
-            <ProtectedRoute>
+            <PermissionRoute module="pos">
               <Layout>
                 <PosPage />
               </Layout>
-            </ProtectedRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/productos"
           element={
-            <ProtectedRoute>
+            <PermissionRoute module="productos">
               <Layout>
                 <ProductsPage />
               </Layout>
-            </ProtectedRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/clientes"
           element={
-            <ProtectedRoute>
+            <PermissionRoute module="clientes">
               <Layout>
                 <ClientsPage />
               </Layout>
-            </ProtectedRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/proveedores"
           element={
-            <ProtectedRoute>
+            <PermissionRoute module="proveedores">
               <Layout>
                 <ProvidersPage />
               </Layout>
-            </ProtectedRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/promociones"
           element={
-            <ProtectedRoute>
+            <PermissionRoute module="promociones">
               <Layout>
                 <PromotionsPage />
               </Layout>
-            </ProtectedRoute>
+            </PermissionRoute>
           }
         />
         <Route
           path="/reportes"
           element={
-            <AdminOnlyRoute>
+            <PermissionRoute module="reportes">
               <Layout>
                 <ReportsPage />
               </Layout>
-            </AdminOnlyRoute>
+            </PermissionRoute>
           }
         />
-
         <Route
           path="/arqueo"
           element={
-            <ProtectedRoute>
+            <PermissionRoute module="arqueo">
               <Layout>
                 <CashRegisterPage />
               </Layout>
-            </ProtectedRoute>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/usuarios"
+          element={
+            <AdminOnlyRoute>
+              <Layout>
+                <UsersPage />
+              </Layout>
+            </AdminOnlyRoute>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

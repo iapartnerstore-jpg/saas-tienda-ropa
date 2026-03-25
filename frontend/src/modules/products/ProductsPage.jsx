@@ -69,6 +69,7 @@ const emptyForm = {
   cost: "",
   price: "",
   stock: "",
+  barcode: "",
 };
 
 const ProductsPage = () => {
@@ -81,6 +82,8 @@ const ProductsPage = () => {
   const [msg, setMsg] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [barcodeError, setBarcodeError] = useState("");
 
   const fetchProducts = async () => {
     try {
@@ -100,23 +103,27 @@ const ProductsPage = () => {
   }, []);
 
   const filteredItems = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
     return items.filter((it) => {
       const categoryOk = categoryFilter === "all" || normalizeCategory(it.category) === categoryFilter;
-      const departmentOk =
-        departmentFilter === "all" || normalizeDepartment(it.department) === departmentFilter;
-      return categoryOk && departmentOk;
+      const departmentOk = departmentFilter === "all" || normalizeDepartment(it.department) === departmentFilter;
+      const searchOk = !q || [it.name, it.brand, it.model, it.description, it.color, it.size]
+        .some((field) => String(field || "").toLowerCase().includes(q));
+      return categoryOk && departmentOk && searchOk;
     });
-  }, [items, categoryFilter, departmentFilter]);
+  }, [items, categoryFilter, departmentFilter, searchQuery]);
 
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((p) => ({ ...p, [name]: value }));
     setMsg("");
+    if (name === "barcode") setBarcodeError("");
   };
 
   const openNew = () => {
     setEditing(null);
     setForm(emptyForm);
+    setBarcodeError("");
     setModalOpen(true);
   };
 
@@ -135,7 +142,9 @@ const ProductsPage = () => {
       cost: product.cost || "",
       price: product.price || "",
       stock: product.stock || "",
+      barcode: product.barcode || "",
     });
+    setBarcodeError("");
     setModalOpen(true);
   };
 
@@ -143,6 +152,19 @@ const ProductsPage = () => {
     e.preventDefault();
     setSaving(true);
     setMsg("");
+    setBarcodeError("");
+
+    // Validar barcode duplicado client-side
+    if (form.barcode.trim()) {
+      const dup = items.find(
+        (p) => p.barcode && p.barcode === form.barcode.trim() && p.id !== editing
+      );
+      if (dup) {
+        setBarcodeError(`Código ya usado en: "${dup.name}"`);
+        setSaving(false);
+        return;
+      }
+    }
 
     try {
       const payload = {
@@ -158,6 +180,7 @@ const ProductsPage = () => {
         cost: Number(form.cost) || 0,
         price: Number(form.price),
         stock: Number(form.stock) || 0,
+        barcode: form.barcode.trim() || null,
       };
 
       if (editing) {
@@ -174,7 +197,12 @@ const ProductsPage = () => {
       setForm(emptyForm); 
     } catch (e) {
       console.error("POST/PUT /products error", e?.response?.data || e);
-      setMsg(e?.response?.data?.message || "Error al guardar producto");
+      const errMsg = e?.response?.data?.message || "Error al guardar producto";
+      if (e?.response?.status === 409) {
+        setBarcodeError(errMsg);
+      } else {
+        setMsg(errMsg);
+      }
     } finally {
       setSaving(false);
     }
@@ -205,6 +233,41 @@ const ProductsPage = () => {
           <button onClick={openNew} style={{ padding: "8px 16px" }}>
             + Nuevo producto
           </button>
+        </div>
+
+        {/* Buscador */}
+        <div style={{ position: "relative", marginTop: 10, maxWidth: 340 }}>
+          <span style={{
+            position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)",
+            fontSize: 15, color: "var(--text-soft)", pointerEvents: "none"
+          }}>🔍</span>
+          <input
+            type="text"
+            placeholder="Buscar por nombre, marca, modelo, color..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "9px 12px 9px 34px",
+              borderRadius: 10,
+              border: "1px solid var(--border-main)",
+              background: "var(--bg-surface)",
+              fontSize: 13,
+              color: "var(--text-main)",
+              fontFamily: "var(--font-main)",
+            }}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              style={{
+                position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 14, color: "var(--text-soft)", padding: "2px 4px",
+              }}
+            >✕</button>
+          )}
         </div>
 
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
@@ -422,6 +485,15 @@ const ProductsPage = () => {
 
             <form className="modal-form" onSubmit={onSubmit}>
               <Field label="Nombre *" name="name" value={form.name} onChange={onChange} required />
+
+              <div>
+                <Field label="Código de barras (opcional)" name="barcode" value={form.barcode} onChange={onChange} />
+                {barcodeError && (
+                  <p style={{ color: "var(--danger)", fontSize: 12, margin: "4px 0 0", padding: "4px 8px", background: "#fef2f2", borderRadius: 6 }}>
+                    ⚠ {barcodeError}
+                  </p>
+                )}
+              </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <Field

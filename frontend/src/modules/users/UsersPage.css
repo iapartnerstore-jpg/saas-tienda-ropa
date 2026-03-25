@@ -1,0 +1,318 @@
+.users-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.users-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.users-page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 2px;
+}
+
+.users-page-subtitle {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ── Tabla ── */
+
+.users-table-wrapper {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-soft);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-soft);
+}
+
+.users-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.user-row:hover td {
+  background: color-mix(in srgb, var(--primary) 7%, white);
+}
+
+.user-row:last-child td {
+  border-bottom: none;
+}
+
+.user-row--expanded td {
+  border-bottom: none;
+}
+
+.user-row--expanded:hover td {
+  background: transparent;
+}
+
+.user-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-email {
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.badge-you {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.status-dot.active {
+  background: var(--success);
+}
+
+.status-dot.inactive {
+  background: var(--text-soft);
+  opacity: 0.5;
+}
+
+.perms-total {
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.perms-count {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Fila expandida ── */
+
+.user-expanded-row td {
+  padding: 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.user-edit-card {
+  padding: 20px 24px;
+  background: var(--bg-surface);
+  border-top: 2px solid var(--primary);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Formulario nuevo usuario ── */
+
+.user-new-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.user-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.user-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.edit-active-row {
+  display: flex;
+  align-items: center;
+}
+
+/* ── Permisos ── */
+
+.perm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.perm-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.perm-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.perm-quick-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.perm-btn-todo {
+  font-size: 12px;
+  padding: 3px 10px;
+  color: var(--success);
+  background: #f0fdf4;
+  border-color: rgba(22, 163, 74, 0.3);
+  border-radius: var(--radius-sm);
+}
+
+.perm-btn-todo:hover {
+  background: #dcfce7;
+  box-shadow: none;
+}
+
+.perm-btn-nada {
+  font-size: 12px;
+  padding: 3px 10px;
+  color: var(--text-soft);
+  background: var(--bg-soft);
+  border-color: var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.perm-btn-nada:hover {
+  background: var(--bg-subtle);
+  box-shadow: none;
+}
+
+.perm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 10px;
+}
+
+/* ── Toggle switch ── */
+
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  color: var(--text-main);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  transition: border-color 0.15s;
+}
+
+.toggle-switch:hover {
+  border-color: var(--primary);
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.toggle-track {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(139, 92, 246, 0.2);
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-switch input:checked + .toggle-track {
+  background: var(--primary);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle-switch input:checked + .toggle-track .toggle-thumb {
+  left: 19px;
+}
+
+.toggle-label {
+  font-size: 13px;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 700px) {
+  .users-table th:nth-child(2),
+  .users-table td:nth-child(2),
+  .users-table th:nth-child(5),
+  .users-table td:nth-child(5) {
+    display: none;
+  }
+
+  .user-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .perm-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

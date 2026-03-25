@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 
 const api = axios.create({
@@ -45,6 +45,8 @@ const normalizeCategory = (value) => {
 
 const normalizeDepartment = (value) => String(value || "").trim().toLowerCase();
 
+const getCartKey = (item) => `${item.productId}-${item.promotionId || "regular"}`;
+
 const getCategoryLabel = (value) => {
   const normalized = normalizeCategory(value);
   return PRODUCT_CATEGORIES.find((item) => item.value === normalized)?.label || value || "Producto";
@@ -55,11 +57,15 @@ export default function PosPage() {
   const [promotions, setPromotions] = useState([]);
   const [cart, setCart] = useState([]);
   const [search, setSearch] = useState("");
+  const [scanFeedback, setScanFeedback] = useState("");
+  const lastKeyTimeRef = useRef(0);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [promotionTypeFilter, setPromotionTypeFilter] = useState("all");
   const [inputQty, setInputQty] = useState("");
- 
+  const [selectedCartKey, setSelectedCartKey] = useState(null);
+  const [keypadMode, setKeypadMode] = useState("qty"); // "qty" | "price"
+
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [savingSale, setSavingSale] = useState(false);
   const [error, setError] = useState("");
@@ -160,7 +166,8 @@ export default function PosPage() {
         (p.brand && p.brand.toLowerCase().includes(term)) ||
         (p.model && p.model.toLowerCase().includes(term)) ||
         (p.size && p.size.toLowerCase().includes(term)) ||
-        (p.color && p.color.toLowerCase().includes(term));
+        (p.color && p.color.toLowerCase().includes(term)) ||
+        (p.barcode && p.barcode.toLowerCase().includes(term));
       return categoryOk && departmentOk && searchOk;
     });
   }, [products, search, categoryFilter, departmentFilter, showingPromos]);
@@ -227,12 +234,13 @@ export default function PosPage() {
     if (!product.id) return;
     if (Number(product.stock) <= 0) return;
     const qty = inputQty ? parseInt(inputQty, 10) || 1 : 1;
+    const key = `${product.id}-regular`;
 
     setCart((prev) => {
-      const existing = prev.find((i) => i.productId === product.id);
+      const existing = prev.find((i) => i.productId === product.id && !i.promotionId);
       if (existing) {
         return prev.map((i) =>
-          i.productId === product.id ? { ...i, qty: i.qty + qty } : i
+          i.productId === product.id && !i.promotionId ? { ...i, qty: i.qty + qty } : i
         );
       }
       return [
@@ -246,7 +254,30 @@ export default function PosPage() {
       ];
     });
 
+    setSelectedCartKey(key);
+    setKeypadMode("qty");
     setInputQty("");
+  };
+
+  // ===== BARCODE SCAN =====
+  const handleSearchKeyDown = (e) => {
+    const now = Date.now();
+    lastKeyTimeRef.current = now;
+
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+    const code = search.trim();
+    if (!code) return;
+
+    // Buscar producto con barcode exacto
+    const match = products.find((p) => p.barcode && p.barcode === code);
+    if (match) {
+      addToCart(match);
+      setSearch("");
+      setScanFeedback(match.name);
+      setTimeout(() => setScanFeedback(""), 1800);
+    }
   };
 
   const addPromotionToCart = (promotion) => {
@@ -286,6 +317,8 @@ export default function PosPage() {
     setCart([]);
     setInputQty("");
     setPayments([]);
+    setSelectedCartKey(null);
+    setKeypadMode("qty");
   };
 
   const removeItem = (productId, promotionId = null) => {
@@ -301,7 +334,38 @@ export default function PosPage() {
       setInputQty("");
       return;
     }
-    setInputQty((prev) => prev + String(value));
+    const newBuffer = inputQty + String(value);
+    setInputQty(newBuffer);
+
+    // En modo cantidad: aplicar al ítem seleccionado en tiempo real
+    if (selectedCartKey && keypadMode === "qty") {
+      const num = parseInt(newBuffer, 10);
+      if (!isNaN(num) && num > 0) {
+        setCart((prev) =>
+          prev.map((i) => getCartKey(i) === selectedCartKey ? { ...i, qty: num } : i)
+        );
+      }
+    }
+    // En modo precio: solo actualiza el buffer, se aplica al confirmar
+  };
+
+  const confirmPriceEdit = () => {
+    if (selectedCartKey && inputQty.trim()) {
+      const num = parseFloat(inputQty);
+      if (!isNaN(num) && num >= 0) {
+        setCart((prev) =>
+          prev.map((i) => getCartKey(i) === selectedCartKey ? { ...i, price: num } : i)
+        );
+      }
+    }
+    setKeypadMode("qty");
+    setInputQty("");
+  };
+
+  const startPriceEdit = () => {
+    if (!selectedCartKey) return;
+    setKeypadMode("price");
+    setInputQty("");
   };
 
   // ===== CLIENTE =====
@@ -535,35 +599,48 @@ export default function PosPage() {
             </div>
           )}
 
-          {cart.map((item) => (
+          {cart.map((item) => {
+            const itemKey = getCartKey(item);
+            const isSelected = selectedCartKey === itemKey;
+            return (
             <div
-              key={`${item.productId}-${item.promotionId || 'regular'}`}
+              key={itemKey}
+              onClick={() => {
+                setSelectedCartKey(isSelected ? null : itemKey);
+                setKeypadMode("qty");
+                setInputQty("");
+              }}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "6px 8px",
                 borderRadius: 12,
-                background: item.promotionId ? "#fef3c7" : "#020817",
-                border: item.promotionId ? "1px solid #eab308" : "none"
+                cursor: "pointer",
+                background: item.promotionId ? "#fef3c7" : "color-mix(in srgb, var(--primary) 10%, white)",
+                border: isSelected
+                  ? "2px solid var(--primary)"
+                  : item.promotionId ? "1px solid #eab308" : "1px solid var(--border-subtle)",
+                boxShadow: isSelected ? "0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent)" : "none",
+                transition: "box-shadow 0.15s, border 0.15s"
               }}
             >
               <div>
-                <div style={{ fontSize: 14, color: item.promotionId ? "#1f2937" : "#fff" }}>
+                <div style={{ fontSize: 14, color: item.promotionId ? "#1f2937" : "var(--text-main)", fontWeight: 600 }}>
                   {item.name}
                   {item.promotionId && <span style={{ fontSize: 10, marginLeft: 6, color: "#d97706" }}>🎁</span>}
                 </div>
-                <div style={{ fontSize: 11, color: item.promotionId ? "#6b7280" : "#9ca3af" }}>
+                <div style={{ fontSize: 11, color: item.promotionId ? "#6b7280" : "var(--text-soft)" }}>
                   x{item.qty} · ${item.price.toLocaleString("es-AR")}
                   {item.promotionName && <span style={{ marginLeft: 4 }}>({item.promotionName})</span>}
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ fontSize: 14, fontWeight: 500, color: item.promotionId ? "#d97706" : "#38bdf8" }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: item.promotionId ? "#d97706" : "var(--primary)" }}>
                   ${(item.price * item.qty).toLocaleString("es-AR")}
                 </div>
                 <button
-                  onClick={() => removeItem(item.productId, item.promotionId || null)}
+                  onClick={(e) => { e.stopPropagation(); removeItem(item.productId, item.promotionId || null); if (selectedCartKey === itemKey) setSelectedCartKey(null); }}
                   style={{
                     border: "none",
                     background: "transparent",
@@ -576,7 +653,8 @@ export default function PosPage() {
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="pos-cart-footer">
@@ -609,28 +687,60 @@ export default function PosPage() {
       {/* KEYPAD + ACCIONES */}
       <section className="pos-center">
         <div>
-          <div style={{ fontSize: 13, color: "#9ca3af", marginBottom: 4 }}>
-            Cantidad
+          <div style={{ fontSize: 13, color: "var(--text-soft)", marginBottom: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span>{keypadMode === "price" ? "Precio" : "Cantidad"}</span>
+            {selectedCartKey && (
+              <span style={{ fontSize: 11, color: "var(--primary)", fontWeight: 600 }}>
+                {keypadMode === "price" ? "✏️ editando precio" : "ítem seleccionado"}
+              </span>
+            )}
           </div>
           <input
             type="number"
-            min="1"
+            min="0"
             value={inputQty || ""}
             onChange={(e) => setInputQty(e.target.value)}
-            placeholder="1"
+            placeholder={keypadMode === "price" ? "0" : "1"}
             style={{
               width: "100%",
               fontSize: 26,
               fontWeight: 500,
               padding: "8px 12px",
               borderRadius: 14,
-              background: "#020817",
-              border: "1px solid #111827",
-              color: "#38bdf8",
+              background: keypadMode === "price"
+                ? "color-mix(in srgb, var(--accent) 8%, white)"
+                : "color-mix(in srgb, var(--primary) 8%, white)",
+              border: keypadMode === "price"
+                ? "1px solid color-mix(in srgb, var(--accent) 40%, transparent)"
+                : "1px solid color-mix(in srgb, var(--primary) 30%, transparent)",
+              color: keypadMode === "price" ? "var(--accent)" : "var(--primary)",
               textAlign: "center"
             }}
           />
         </div>
+
+        {selectedCartKey && (
+          <button
+            onClick={keypadMode === "price" ? confirmPriceEdit : startPriceEdit}
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: 10,
+              border: keypadMode === "price"
+                ? "1px solid color-mix(in srgb, var(--success) 50%, transparent)"
+                : "1px solid color-mix(in srgb, var(--accent) 40%, transparent)",
+              background: keypadMode === "price"
+                ? "color-mix(in srgb, var(--success) 10%, white)"
+                : "color-mix(in srgb, var(--accent) 8%, white)",
+              color: keypadMode === "price" ? "var(--success)" : "var(--accent)",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer"
+            }}
+          >
+            {keypadMode === "price" ? "✓ Confirmar precio" : "✏️ Editar precio"}
+          </button>
+        )}
 
         <div className="pos-keypad-grid">
           {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((n) => (
@@ -644,13 +754,19 @@ export default function PosPage() {
           <button className="pos-key-btn danger" onClick={() => handleKeypad("C")}>
             C
           </button>
-          <button
-            className="pos-key-btn primary"
-            onClick={openPaymentModal}
-            disabled={!cart.length}
-          >
-            Cobrar
-          </button>
+          {keypadMode === "price" && selectedCartKey ? (
+            <button className="pos-key-btn primary" onClick={confirmPriceEdit}>
+              OK
+            </button>
+          ) : (
+            <button
+              className="pos-key-btn primary"
+              onClick={openPaymentModal}
+              disabled={!cart.length}
+            >
+              Cobrar
+            </button>
+          )}
         </div>
       </section> 
 
@@ -658,16 +774,21 @@ export default function PosPage() {
       <section className="pos-right">
         <div className="pos-search">
           <input
-            placeholder="Buscar producto..."
+            placeholder="Buscar producto o escanear código..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              // If searching while on Promociones tab, switch to Todas
               if (e.target.value.trim() && categoryFilter === "promociones") {
                 setCategoryFilter("all");
               }
             }}
+            onKeyDown={handleSearchKeyDown}
           />
+          {scanFeedback && (
+            <div style={{ fontSize: 12, color: "var(--success)", padding: "4px 2px", fontWeight: 600 }}>
+              ✓ {scanFeedback} agregado
+            </div>
+          )}
         </div>
 
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>

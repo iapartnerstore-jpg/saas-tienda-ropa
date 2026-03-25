@@ -17,7 +17,8 @@ import salesRoutes from './routes/sales.routes.js';
 import customersRoutes from './routes/customers.routes.js';
 import storeSettingsRoutes from './routes/storeSettings.routes.js';
 import providersRoutes from './routes/providers.routes.js';
-import promotionsRoutes from './routes/promotions.routes.js';
+import promotionsRoutes from './routes/promotions.routes.js'
+import usersRoutes from './routes/users.routes.js';
 
 
 const app = express();
@@ -49,6 +50,8 @@ app.use('/customers', customersRoutes);
 app.use('/providers', providersRoutes);
 app.use('/store/providers', providersRoutes);
 app.use('/promotions', promotionsRoutes);
+app.use('/users', usersRoutes);
+app.use('/api/users', usersRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/customers', customersRoutes);

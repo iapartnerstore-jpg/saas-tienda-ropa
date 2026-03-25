@@ -60,33 +60,37 @@ export default function Dashboard() {
     <div className="dashboard-root">
       {/* KPIs */}
       <div className="dash-row">
-        <div className="dash-card kpi">
-          <div className="label">Ventas de hoy</div>
-          <div className="value">
-            {loading ? "…" : todaySales}
-          </div>
-          <div className="hint">Tickets emitidos</div>
-        </div>
+        {admin && (
+          <>
+            <div className="dash-card kpi">
+              <div className="label">Ventas de hoy</div>
+              <div className="value">
+                {loading ? "…" : todaySales}
+              </div>
+              <div className="hint">Tickets emitidos</div>
+            </div>
 
-        <div className="dash-card kpi">
-          <div className="label">Ingresos de hoy</div>
-          <div className="value">
-            {loading
-              ? "…"
-              : `$${Number(todayRevenue || 0).toLocaleString("es-AR")}`}
-          </div>
-          <div className="hint">Incluye todos los medios de pago</div>
-        </div>
+            <div className="dash-card kpi">
+              <div className="label">Ingresos de hoy</div>
+              <div className="value">
+                {loading
+                  ? "…"
+                  : `$${Number(todayRevenue || 0).toLocaleString("es-AR")}`}
+              </div>
+              <div className="hint">Incluye todos los medios de pago</div>
+            </div>
 
-        <div className="dash-card kpi">
-          <div className="label">Ticket promedio</div>
-          <div className="value">
-            {loading
-              ? "…"
-              : `$${Number(avgTicket || 0).toLocaleString("es-AR")}`}
-          </div>
-          <div className="hint">Monto promedio por venta hoy</div>
-        </div>
+            <div className="dash-card kpi">
+              <div className="label">Ticket promedio</div>
+              <div className="value">
+                {loading
+                  ? "…"
+                  : `$${Number(avgTicket || 0).toLocaleString("es-AR")}`}
+              </div>
+              <div className="hint">Monto promedio por venta hoy</div>
+            </div>
+          </>
+        )}
 
         <div className="dash-card kpi alert">
           <div className="label">Stock crítico</div>
