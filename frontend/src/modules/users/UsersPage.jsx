@@ -184,7 +184,72 @@ export default function UsersPage() {
     }
   };
 
-  // ── Formulario compartido (edición o nuevo) ──
+  // ── Formulario de edición compartido entre tabla (desktop) y tarjetas (mobile) ──
+  const renderEditForm = () => (
+    <div className="user-edit-card">
+      <div className="user-form-grid">
+        <div className="form-group">
+          <label className="form-label">Nombre</label>
+          <input
+            className="form-input"
+            value={editForm.name || ""}
+            onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+            placeholder="Nombre"
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Email / Usuario</label>
+          <input
+            className="form-input"
+            value={editForm.email || ""}
+            onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+            placeholder="email o usuario"
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Nueva contraseña (dejar vacío para no cambiar)</label>
+          <input
+            className="form-input"
+            type="password"
+            value={editForm.password || ""}
+            onChange={(e) => setEditForm((f) => ({ ...f, password: e.target.value }))}
+            placeholder="Nueva contraseña"
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Rol</label>
+          <select
+            className="form-select"
+            value={editForm.role || "employee"}
+            onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value }))}
+          >
+            <option value="employee">Empleado</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+      </div>
+      <div className="edit-active-row">
+        <label className="toggle-switch">
+          <input
+            type="checkbox"
+            checked={editForm.active || false}
+            onChange={(e) => setEditForm((f) => ({ ...f, active: e.target.checked }))}
+          />
+          <span className="toggle-track"><span className="toggle-thumb" /></span>
+          <span className="toggle-label">Activo</span>
+        </label>
+      </div>
+      {editForm.role !== "admin" && renderPermissionToggles(editForm, togglePerm, setAllPerms)}
+      <div className="user-form-actions">
+        <button className="cancel" onClick={closeEdit}>Cancelar</button>
+        <button className="save" onClick={handleSave} disabled={saving}>
+          {saving ? "Guardando..." : "Guardar cambios"}
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── Permisos ──
   const renderPermissionToggles = (form, toggleFn, setAllFn) => (
     <div className="perm-section">
       <div className="perm-section-header">
@@ -286,149 +351,139 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* ── Tabla ── */}
+      {/* ── Tabla (desktop) / Tarjetas (mobile) ── */}
       {loading ? (
         <p style={{ color: "var(--text-soft)" }}>Cargando usuarios...</p>
       ) : (
-        <div className="users-table-wrapper">
-          <table className="users-table">
-            <thead>
-              <tr>
-                <th>Usuario</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Permisos</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <React.Fragment key={u.id}>
-                  <tr className={expandedId === u.id ? "user-row user-row--expanded" : "user-row"}>
-                    <td>
-                      <span className="user-name">
-                        {u.name || u.email}
-                        {u.id === me?.id && <span className="badge-you">Tú</span>}
-                      </span>
-                    </td>
-                    <td className="user-email">{u.email}</td>
-                    <td>
-                      <span className={`role-badge role-badge--${u.role === "admin" ? "admin" : "employee"}`}>
-                        {u.role === "admin" ? "Admin" : "Usuario"}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`status-dot ${u.active ? "active" : "inactive"}`} />
-                      {u.active ? "Activo" : "Inactivo"}
-                    </td>
-                    <td>
-                      {u.role === "admin" ? (
-                        <span className="perms-total">Acceso total</span>
-                      ) : (
-                        <span className="perms-count">{countPermissions(u)}/{MODULES.length} módulos</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className="row-actions">
-                        {expandedId === u.id ? (
-                          <button className="cancel" onClick={closeEdit}>Cerrar</button>
+        <>
+          {/* ── TABLA — solo desktop ── */}
+          <div className="users-table-wrapper">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Permisos</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((u) => (
+                  <React.Fragment key={u.id}>
+                    <tr className={expandedId === u.id ? "user-row user-row--expanded" : "user-row"}>
+                      <td>
+                        <span className="user-name">
+                          {u.name || u.email}
+                          {u.id === me?.id && <span className="badge-you">Tú</span>}
+                        </span>
+                      </td>
+                      <td className="user-email">{u.email}</td>
+                      <td>
+                        <span className={`role-badge role-badge--${u.role === "admin" ? "admin" : "employee"}`}>
+                          {u.role === "admin" ? "Admin" : "Usuario"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`status-dot ${u.active ? "active" : "inactive"}`} />
+                        {u.active ? "Activo" : "Inactivo"}
+                      </td>
+                      <td>
+                        {u.role === "admin" ? (
+                          <span className="perms-total">Acceso total</span>
                         ) : (
-                          <button onClick={() => openEdit(u)}>Editar</button>
+                          <span className="perms-count">{countPermissions(u)}/{MODULES.length} módulos</span>
                         )}
-                        {u.id !== me?.id && (
-                          confirmDelete === u.id ? (
-                            <button className="danger" onClick={() => handleDelete(u.id)} disabled={saving}>
-                              Confirmar
-                            </button>
+                      </td>
+                      <td>
+                        <div className="row-actions">
+                          {expandedId === u.id ? (
+                            <button className="cancel" onClick={closeEdit}>Cerrar</button>
                           ) : (
-                            <button className="danger" onClick={() => setConfirmDelete(u.id)}>
-                              Eliminar
-                            </button>
-                          )
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-
-                  {/* ── Fila expandida de edición ── */}
-                  {expandedId === u.id && (
-                    <tr className="user-expanded-row">
-                      <td colSpan={6}>
-                        <div className="user-edit-card">
-                          <div className="user-form-grid">
-                            <div className="form-group">
-                              <label className="form-label">Nombre</label>
-                              <input
-                                className="form-input"
-                                value={editForm.name}
-                                onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
-                                placeholder="Nombre"
-                              />
-                            </div>
-                            <div className="form-group">
-                              <label className="form-label">Email / Usuario</label>
-                              <input
-                                className="form-input"
-                                value={editForm.email}
-                                onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
-                                placeholder="email o usuario"
-                              />
-                            </div>
-                            <div className="form-group">
-                              <label className="form-label">Nueva contraseña (dejar vacío para no cambiar)</label>
-                              <input
-                                className="form-input"
-                                type="password"
-                                value={editForm.password}
-                                onChange={(e) => setEditForm((f) => ({ ...f, password: e.target.value }))}
-                                placeholder="Nueva contraseña"
-                              />
-                            </div>
-                            <div className="form-group">
-                              <label className="form-label">Rol</label>
-                              <select
-                                className="form-select"
-                                value={editForm.role}
-                                onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value }))}
-                              >
-                                <option value="employee">Empleado</option>
-                                <option value="admin">Administrador</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          <div className="edit-active-row">
-                            <label className="toggle-switch">
-                              <input
-                                type="checkbox"
-                                checked={editForm.active}
-                                onChange={(e) => setEditForm((f) => ({ ...f, active: e.target.checked }))}
-                              />
-                              <span className="toggle-track">
-                                <span className="toggle-thumb" />
-                              </span>
-                              <span className="toggle-label">Activo</span>
-                            </label>
-                          </div>
-
-                          {editForm.role !== "admin" && renderPermissionToggles(editForm, togglePerm, setAllPerms)}
-
-                          <div className="user-form-actions">
-                            <button className="cancel" onClick={closeEdit}>Cancelar</button>
-                            <button className="save" onClick={handleSave} disabled={saving}>
-                              {saving ? "Guardando..." : "Guardar cambios"}
-                            </button>
-                          </div>
+                            <button onClick={() => openEdit(u)}>Editar</button>
+                          )}
+                          {u.id !== me?.id && (
+                            confirmDelete === u.id ? (
+                              <button className="danger" onClick={() => handleDelete(u.id)} disabled={saving}>
+                                Confirmar
+                              </button>
+                            ) : (
+                              <button className="danger" onClick={() => setConfirmDelete(u.id)}>
+                                Eliminar
+                              </button>
+                            )
+                          )}
                         </div>
                       </td>
                     </tr>
+                    {expandedId === u.id && (
+                      <tr className="user-expanded-row">
+                        <td colSpan={6}>
+                          {renderEditForm()}
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* ── TARJETAS — solo mobile ── */}
+          <div className="users-cards-mobile">
+            {users.map((u) => (
+              <div key={u.id} className="user-card-mobile">
+                <div className="user-card-top">
+                  <div className="user-card-info">
+                    <div className="user-card-name">
+                      {u.name || u.email}
+                      {u.id === me?.id && <span className="badge-you">Tú</span>}
+                    </div>
+                    <div className="user-card-email">{u.email}</div>
+                    <div className="user-card-meta">
+                      <span className={`role-badge role-badge--${u.role === "admin" ? "admin" : "employee"}`}>
+                        {u.role === "admin" ? "Admin" : "Empleado"}
+                      </span>
+                      <span className="user-card-status">
+                        <span className={`status-dot ${u.active ? "active" : "inactive"}`} />
+                        {u.active ? "Activo" : "Inactivo"}
+                      </span>
+                      <span className="perms-count">
+                        {u.role === "admin" ? "Acceso total" : `${countPermissions(u)}/${MODULES.length} permisos`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="user-card-actions">
+                  {expandedId === u.id ? (
+                    <button className="cancel" onClick={closeEdit}>Cerrar</button>
+                  ) : (
+                    <button onClick={() => openEdit(u)}>Editar</button>
                   )}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  {u.id !== me?.id && (
+                    confirmDelete === u.id ? (
+                      <button className="danger" onClick={() => handleDelete(u.id)} disabled={saving}>
+                        ¿Confirmar?
+                      </button>
+                    ) : (
+                      <button className="danger" onClick={() => setConfirmDelete(u.id)}>
+                        Eliminar
+                      </button>
+                    )
+                  )}
+                </div>
+
+                {expandedId === u.id && (
+                  <div className="user-card-edit">
+                    {renderEditForm(u)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

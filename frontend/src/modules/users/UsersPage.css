@@ -298,14 +298,87 @@
   font-size: 13px;
 }
 
+/* ── Tarjetas mobile ── */
+
+.users-cards-mobile {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-card-mobile {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.user-card-top {
+  padding: 14px 16px 0;
+}
+
+.user-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.user-card-email {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 8px;
+}
+
+.user-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.user-card-status {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.user-card-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.user-card-actions button {
+  flex: 1;
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+.user-card-edit {
+  border-top: 2px solid var(--primary);
+}
+
+.user-card-edit .user-edit-card {
+  border-top: none;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 700px) {
-  .users-table th:nth-child(2),
-  .users-table td:nth-child(2),
-  .users-table th:nth-child(5),
-  .users-table td:nth-child(5) {
+  /* Ocultar tabla, mostrar tarjetas */
+  .users-table-wrapper {
     display: none;
+  }
+
+  .users-cards-mobile {
+    display: flex;
   }
 
   .user-form-grid {
@@ -314,5 +387,14 @@
 
   .perm-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .users-page-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .users-page-header button {
+    width: 100%;
   }
 }
