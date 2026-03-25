@@ -39,7 +39,7 @@ export default function Login() {
     <div className="login-wrapper">
       <form className="login-box" onSubmit={handleLogin}>
         <h1>Iniciar sesión</h1>
-        <p className="subtitle">Panel Tienda de Ropa · SaaS</p>
+        <p className="subtitle">Bienvenido a Tienda Alex</p>
 
         <input
           type="text"
